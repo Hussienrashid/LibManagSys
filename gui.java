@@ -122,6 +122,15 @@ public class gui {
 
         tabbedPane.addTab("Management", ManagementPanel);
 
+        // === Reports panel ====
+
+        JPanel reportspanel = new JPanel(new GridLayout(2, 2, 10, 10));
+        reportspanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+
+        tabbedPane.addTab("Reports", reportspanel);
+
+
         tabbedPane.setSelectedIndex(tabIndex);
 
         // === Add tabbedPane to frame ===
@@ -1103,11 +1112,14 @@ public class gui {
 
         JTextField nameTextField = new JTextField(20);
         JButton addButton = new JButton("Add Category");
+        JButton deleteButton = new JButton("Delete Category");
+
 
         formPanel.add(new JLabel("Enter New Category Name:"));
         formPanel.add(nameTextField);
-        formPanel.add(new JLabel()); // Spacer
         formPanel.add(addButton);
+        formPanel.add(deleteButton);
+
 
         // --- 4. Center Layout ---
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, formPanel, scrollPane);
@@ -1140,8 +1152,47 @@ public class gui {
             }
         });
 
+        deleteButton.addActionListener(i -> {
+            int selectedRow = categoryTable.getSelectedRow();
+
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(frame, "Please select a category to delete.", "Warning", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            String categoryId = (String) tableModel.getValueAt(selectedRow, 1);
+            String categoryName = (String) tableModel.getValueAt(selectedRow, 0);
+
+            int confirm = JOptionPane.showConfirmDialog(
+                    frame,
+                    "Are you sure you want to delete the category: " + categoryName + "?",
+                    "Confirm Delete",
+                    JOptionPane.YES_NO_OPTION
+            );
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                // 1. Delete from 'database' (Simulated)
+                boolean success = deleteCategory(categoryId);
+
+                if (success) {
+                    // 2. Remove the row from the table model (automatic UI update)
+                    // Note: Always remove from the table model using its index.
+                    tableModel.removeRow(selectedRow);
+                    JOptionPane.showMessageDialog(frame, categoryName + " deleted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Failed to delete category in database.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
         frame.revalidate();
         frame.repaint();
+    }
+    private boolean deleteCategory(String id) {
+        // In a real application: Execute DELETE statement where ID = id
+        System.out.println("Deleting category with ID: " + id);
+        // Simulate successful deletion
+        return true;
     }
 
     private void loadCategoryData(DefaultTableModel model) {
@@ -1153,7 +1204,7 @@ public class gui {
     }
 
     /** Fetches simulated categories from a 'database' using ArrayList and Object[]. */
-    private List<Object[]> fetchCategories() {
+    public List<Object[]> fetchCategories() {
         List<Object[]> data = new ArrayList<>();
         // Each element is an Object array representing a table row {Name, ID}
         data.add(new Object[]{"Fiction", "C001"});
@@ -1169,49 +1220,94 @@ public class gui {
         return "C" + new Random().nextInt(900) + 100; // Simulated 3-digit ID
     }
 
+
     private void telegramapi(String username) {
         frame.getContentPane().removeAll();
-        frame.setLayout(new BorderLayout());
+        frame.setLayout(new BorderLayout(10, 10));
 
-        JLabel title = new JLabel("Telegram Api", SwingConstants.CENTER);
-        title.setFont(new Font("SansSerif", Font.BOLD, 24));
+        // --- 1. Title ---
+        JLabel title = new JLabel("Telegram api", SwingConstants.CENTER);
+        title.setFont(new Font("SansSerif", Font.BOLD, 28));
         frame.add(title, BorderLayout.NORTH);
 
-        JPanel wrapper = new JPanel(new GridBagLayout());
-        JPanel form = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(6, 5, 5, 5);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        // --- 2. Table Model and View ---
+        String[] columnNames = {"api", "id"};
+        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
+        JTable categoryTable = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(categoryTable);
 
-        // Name
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        JLabel BotTokenlabel = new JLabel("Bot Token:");
-        BotTokenlabel.setHorizontalAlignment(SwingConstants.CENTER);
-        form.add(BotTokenlabel, gbc);
+        // Load initial data
+        loadapi(tableModel);
 
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        JTextField bottokentextfield = new JTextField(40);
-        form.add(bottokentextfield, gbc);
+        // --- 3. Input Form Panel (WEST) ---
+        JPanel formPanel = new JPanel(new GridLayout(4, 1, 10, 10));
+        formPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // Add User Button
-        gbc.gridx = 0;
-        gbc.gridy = 14;
-        gbc.fill = GridBagConstraints.NONE;
-        JButton addbottokenbutton = new JButton("Add token");
-        form.add(addbottokenbutton, gbc);
+        JTextField nameTextField = new JTextField(20);
+        JButton addButton = new JButton("Add api");
+        JButton deleteButton = new JButton("Delete api");
 
-        wrapper.add(form);
-        frame.add(wrapper, BorderLayout.CENTER);
+        formPanel.add(new JLabel("Enter New api:"));
+        formPanel.add(nameTextField);
+        formPanel.add(addButton);
+        formPanel.add(deleteButton);
 
-        // Back button
+        // --- 4. Center Layout ---
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, formPanel, scrollPane);
+        splitPane.setDividerLocation(250);
+        splitPane.setResizeWeight(0.0);
+        frame.add(splitPane, BorderLayout.CENTER);
+
+        // --- 5. Back Button (SOUTH) ---
         JButton back = new JButton("Back to Management");
-        back.addActionListener(j -> librarymanagmentSystem(username, 1));
+        back.addActionListener(e -> librarymanagmentSystem(username, 1));
         frame.add(back, BorderLayout.SOUTH);
+
+        // --- 6. Action Listener for Dynamic Update ---
+        addButton.addActionListener(e -> {
+            String newapi = nameTextField.getText().trim();
+            if (!newapi.isEmpty()) {
+                // 1. Save and get the ID (Simulated)
+                String newId = saveapi(newapi);
+
+                // 2. Create the row data as an Object array
+                Object[] rowData = {newapi, newId};
+
+                // 3. Add the new row to the table model (automatic UI update)
+                tableModel.addRow(rowData);
+
+                // 4. Clear input
+                nameTextField.setText("");
+            } else {
+                JOptionPane.showMessageDialog(frame, "api box can't be empty.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
 
         frame.revalidate();
         frame.repaint();
     }
+
+    private void loadapi(DefaultTableModel model) {
+        model.setRowCount(0);
+        List<Object[]> api = fetchapi();
+        for (Object[] apiRow : api) {
+            model.addRow(apiRow);
+        }
+    }
+
+    /** Fetches simulated categories from a 'database' using ArrayList and Object[]. */
+    private List<Object[]> fetchapi() {
+        List<Object[]> data = new ArrayList<>();
+        return data;
+    }
+
+    /** Saves a new category to the 'database' and returns the new ID. */
+    private String saveapi(String name) {
+        // Replace with actual database INSERT and ID retrieval.
+        System.out.println("Saving new api: " + name);
+        return "T" + new Random().nextInt(900) + 100; // Simulated 3-digit ID
+    }
+
+
 
 }
