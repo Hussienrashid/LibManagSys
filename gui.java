@@ -199,6 +199,10 @@ public class gui {
 
         });
 
+        ui.addActionListener(u -> {
+            ui(username);
+        });
+
         frame.revalidate();
         frame.repaint();
     }
@@ -1308,6 +1312,69 @@ public class gui {
         return "T" + new Random().nextInt(900) + 100; // Simulated 3-digit ID
     }
 
+    private void ui(String username){
+        frame.getContentPane().removeAll();
+        frame.setLayout(new BorderLayout(10,10));
 
+        JLabel title = new JLabel("UI Settings");
+        title.setFont(new Font("SansSerif", Font.BOLD, 28));
+        frame.add(title, BorderLayout.NORTH);
+
+        JPanel settingpanel = new JPanel();
+        settingpanel.setLayout(new BoxLayout(settingpanel, BoxLayout.Y_AXIS));
+        settingpanel.setBorder(BorderFactory.createEmptyBorder(30, 50, 30, 50));
+
+        Jpanel themePanel = createSettingsSection("Theme Settings");
+
+        JLabel themeLabel = new JLabel("Color Theme");
+        String[] themes = {"Light Mode", "Dark Mode", "Blue Mode", "Green Mode"};
+        JComboBox<String> themeCombo = new JComboBox<>(themes);
+        themeCombo.setMaximumSize(new Dimension(300, 30));
+
+        themePanel.add(themeLabel);
+        themePanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        themePanel.add(themeCombo);
+
+        Jpanel fontpanel = createSettingsSection("Font Settings");
+
+        JLabel fontLabel = new JLabel("Font Family");
+        String[] fonts = {"SansSerif", "Serif", "Arial", "Tahoma"};
+        JComboBox<String> fontcombo = new JComboBox<>(fonts);
+        fontcombo.setMaximumSize(new Dimension(300, 30));
+
+        JLabel fontSizLabel = new JLabel("Font size");
+        JSpinner fontSizeSpinner = new JSpinner(new SpinnerNumberModel(14,10,30,1));
+        fontSizeSpinner.setMaximumSize(new Dimension(300, 30));
+
+        fontpanel.add(fontLabel);
+        fontpanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        fontpanel.add(fontcombo);
+        fontpanel.add(Box.createRigidArea(new Dimension(0, 15)));
+        fontpanel.add(fontSizLabel);
+        fontpanel.add(Box.createRigidArea(new Dimension(0, 15)));
+        fontpanel.add(fontSizeSpinner);
+
+        JPanel windowpanel = createSettingsSection("window Display mode");
+
+        JLabel WindowLabel = new JLabel("Display mode");
+        String[] Windowsmode = {"Maximized", "Fullscreen mode"};
+        JComboBox<String> windowcombo = new JComboBox<>(Windowsmode);
+        windowcombo.setMaximumSize(new Dimension(300,30));
+
+
+        if(frame.getExtendedState() == JFrame.MAXIMIZED_BOTH){
+            windowcombo.setSelectedItem("Maximized");
+        }
+
+        windowpanel.add(WindowLabel);
+        windowpanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        windowpanel.add(windowcombo);
+
+    }
+
+
+    private JPanel createSettingsSection(String username){
+        JPanel panel = new JPanel();
+    }
 
 }
