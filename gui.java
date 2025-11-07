@@ -8,6 +8,9 @@ import java.util.Random;
 import java.util.Arrays;
 
 public class gui {
+    private static String currentTheme = "Light";
+    private static int currentFontSize = 14;
+    private static boolean currentFullScreen = true;
     private JFrame frame;
 
     public static void main(String[] args) {
@@ -203,6 +206,9 @@ public class gui {
             ui(username);
         });
 
+        applyGlobalSettings();
+
+
         frame.revalidate();
         frame.repaint();
     }
@@ -340,6 +346,8 @@ public class gui {
 
         frame.add(back, BorderLayout.SOUTH);
 
+        applyGlobalSettings();
+
         frame.revalidate();
         frame.repaint();
     }
@@ -460,6 +468,9 @@ public class gui {
 
         frame.add(back, BorderLayout.SOUTH);
 
+        applyGlobalSettings();
+
+
         frame.revalidate();
         frame.repaint();
     }
@@ -540,6 +551,7 @@ public class gui {
         });
 
         frame.add(back, BorderLayout.SOUTH);
+        applyGlobalSettings();
 
         frame.revalidate();
         frame.repaint();
@@ -657,6 +669,8 @@ public class gui {
         back.addActionListener(j -> librarymanagmentSystem(username, 0));
         frame.add(back, BorderLayout.SOUTH);
 
+        applyGlobalSettings();
+
         frame.revalidate();
         frame.repaint();
     }
@@ -743,6 +757,7 @@ public class gui {
         JButton back = new JButton("Back to Dashboard");
         back.addActionListener(j -> librarymanagmentSystem(username, 0));
         frame.add(back, BorderLayout.SOUTH);
+        applyGlobalSettings();
 
         frame.revalidate();
         frame.repaint();
@@ -784,6 +799,7 @@ public class gui {
         JButton back = new JButton("Back to Dashboard");
         back.addActionListener(j -> librarymanagmentSystem(username, 0));
         frame.add(back, BorderLayout.SOUTH);
+        applyGlobalSettings();
 
         frame.revalidate();
         frame.repaint();
@@ -865,6 +881,7 @@ public class gui {
         JButton back = new JButton("Back to Management");
         back.addActionListener(j -> librarymanagmentSystem(username, 1));
         frame.add(back, BorderLayout.SOUTH);
+        applyGlobalSettings();
 
         frame.revalidate();
         frame.repaint();
@@ -935,6 +952,8 @@ public class gui {
         JButton back = new JButton("Back to Management");
         back.addActionListener(j -> librarymanagmentSystem(username, 1));
         frame.add(back, BorderLayout.SOUTH);
+
+        applyGlobalSettings();
 
         frame.revalidate();
         frame.repaint();
@@ -1017,6 +1036,7 @@ public class gui {
         JButton back = new JButton("Back to Management");
         back.addActionListener(j -> librarymanagmentSystem(username, 1));
         frame.add(back, BorderLayout.SOUTH);
+        applyGlobalSettings();
 
         frame.revalidate();
         frame.repaint();
@@ -1087,6 +1107,7 @@ public class gui {
         JButton back = new JButton("Back to Management");
         back.addActionListener(j -> librarymanagmentSystem(username, 1));
         frame.add(back, BorderLayout.SOUTH);
+        applyGlobalSettings();
 
         frame.revalidate();
         frame.repaint();
@@ -1188,6 +1209,7 @@ public class gui {
                 }
             }
         });
+        applyGlobalSettings();
 
         frame.revalidate();
         frame.repaint();
@@ -1286,6 +1308,7 @@ public class gui {
                 JOptionPane.showMessageDialog(frame, "api box can't be empty.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
+        applyGlobalSettings();
 
         frame.revalidate();
         frame.repaint();
@@ -1312,69 +1335,153 @@ public class gui {
         return "T" + new Random().nextInt(900) + 100; // Simulated 3-digit ID
     }
 
-    private void ui(String username){
-        frame.getContentPane().removeAll();
-        frame.setLayout(new BorderLayout(10,10));
+    private void ui(String username) {
+    frame.getContentPane().removeAll();
+    frame.setLayout(new BorderLayout());
 
-        JLabel title = new JLabel("UI Settings");
-        title.setFont(new Font("SansSerif", Font.BOLD, 28));
-        frame.add(title, BorderLayout.NORTH);
+    JLabel title = new JLabel("UI Settings", SwingConstants.CENTER);
+    title.setFont(new Font("SansSerif", Font.BOLD, 24));
+    frame.add(title, BorderLayout.NORTH);
 
-        JPanel settingpanel = new JPanel();
-        settingpanel.setLayout(new BoxLayout(settingpanel, BoxLayout.Y_AXIS));
-        settingpanel.setBorder(BorderFactory.createEmptyBorder(30, 50, 30, 50));
+    JPanel mainPanel = new JPanel(new GridBagLayout());
+    GridBagConstraints gbc = new GridBagConstraints();
+    gbc.insets = new Insets(6, 5, 5, 5);
+    gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        Jpanel themePanel = createSettingsSection("Theme Settings");
+    // Theme selector
+    gbc.gridx = 0; gbc.gridy = 0;
+    mainPanel.add(new JLabel("Theme:"), gbc);
+    gbc.gridy++;
+    JComboBox<String> themeBox = new JComboBox<>(new String[]{"Light", "Dark"});
+    mainPanel.add(themeBox, gbc);
 
-        JLabel themeLabel = new JLabel("Color Theme");
-        String[] themes = {"Light Mode", "Dark Mode", "Blue Mode", "Green Mode"};
-        JComboBox<String> themeCombo = new JComboBox<>(themes);
-        themeCombo.setMaximumSize(new Dimension(300, 30));
+    // Font size
+    gbc.gridy++;
+    mainPanel.add(new JLabel("Font Size:"), gbc);
+    gbc.gridy++;
+    JSpinner fontSpinner = new JSpinner(new SpinnerNumberModel(14, 8, 32, 1));
+    mainPanel.add(fontSpinner, gbc);
 
-        themePanel.add(themeLabel);
-        themePanel.add(Box.createRigidArea(new Dimension(0, 10)));
-        themePanel.add(themeCombo);
+    // Full screen checkbox
+    gbc.gridy++;
+    JCheckBox fullscreenCheck = new JCheckBox("Enable Full Screen Mode");
+    mainPanel.add(fullscreenCheck, gbc);
 
-        Jpanel fontpanel = createSettingsSection("Font Settings");
+    // Buttons
+    gbc.gridy++;
+    JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+    JButton applyBtn = new JButton("Apply");
+    JButton resetBtn = new JButton("Reset");
+    buttonPanel.add(applyBtn);
+    buttonPanel.add(resetBtn);
+    mainPanel.add(buttonPanel, gbc);
 
-        JLabel fontLabel = new JLabel("Font Family");
-        String[] fonts = {"SansSerif", "Serif", "Arial", "Tahoma"};
-        JComboBox<String> fontcombo = new JComboBox<>(fonts);
-        fontcombo.setMaximumSize(new Dimension(300, 30));
+    frame.add(mainPanel, BorderLayout.CENTER);
 
-        JLabel fontSizLabel = new JLabel("Font size");
-        JSpinner fontSizeSpinner = new JSpinner(new SpinnerNumberModel(14,10,30,1));
-        fontSizeSpinner.setMaximumSize(new Dimension(300, 30));
+    // Load current global values
+    themeBox.setSelectedItem(currentTheme);
+    fontSpinner.setValue(currentFontSize);
+    fullscreenCheck.setSelected(currentFullScreen);
 
-        fontpanel.add(fontLabel);
-        fontpanel.add(Box.createRigidArea(new Dimension(0, 10)));
-        fontpanel.add(fontcombo);
-        fontpanel.add(Box.createRigidArea(new Dimension(0, 15)));
-        fontpanel.add(fontSizLabel);
-        fontpanel.add(Box.createRigidArea(new Dimension(0, 15)));
-        fontpanel.add(fontSizeSpinner);
+    // === Apply Button ===
+    applyBtn.addActionListener(e -> {
+        currentTheme = (String) themeBox.getSelectedItem();
+        currentFontSize = (int) fontSpinner.getValue();
+        currentFullScreen = fullscreenCheck.isSelected();
 
-        JPanel windowpanel = createSettingsSection("window Display mode");
+        applyGlobalSettings();
 
-        JLabel WindowLabel = new JLabel("Display mode");
-        String[] Windowsmode = {"Maximized", "Fullscreen mode"};
-        JComboBox<String> windowcombo = new JComboBox<>(Windowsmode);
-        windowcombo.setMaximumSize(new Dimension(300,30));
+        JOptionPane.showMessageDialog(frame,
+                "Applied to Entire System:\n" +
+                        "Theme: " + currentTheme +
+                        "\nFont Size: " + currentFontSize +
+                        "\nFull Screen: " + (currentFullScreen ? "Enabled" : "Disabled"),
+                "Global Settings Applied", JOptionPane.INFORMATION_MESSAGE);
+    });
+
+    // === Reset Button ===
+    resetBtn.addActionListener(e -> {
+        currentTheme = "Light";
+        currentFontSize = 14;
+        currentFullScreen = false;
+        themeBox.setSelectedItem(currentTheme);
+        fontSpinner.setValue(currentFontSize);
+        fullscreenCheck.setSelected(currentFullScreen);
+        applyGlobalSettings();
+    });
+
+    // === Back Button ===
+    JButton back = new JButton("Back to Dashboard");
+            back.addActionListener(j -> {
+                librarymanagmentSystem(username, 1);
+            });
+
+        frame.add(back, BorderLayout.SOUTH);
+
+    // Apply current settings to this screen
+    applyGlobalSettings();
+}
 
 
-        if(frame.getExtendedState() == JFrame.MAXIMIZED_BOTH){
-            windowcombo.setSelectedItem("Maximized");
+  private void applyTheme(Container container, String theme) {
+    Color bg, fg, btnBg;
+
+    if ("Dark".equalsIgnoreCase(theme)) {
+        bg = new Color(45, 45, 45);
+        fg = Color.WHITE;
+        btnBg = new Color(70, 70, 70);
+    } else {
+        bg = Color.WHITE;
+        fg = Color.BLACK;
+        btnBg = new Color(230, 230, 230);
+    }
+
+    for (Component comp : container.getComponents()) {
+        if (comp instanceof JPanel) {
+            applyTheme((Container) comp, theme);
+        } else if (comp instanceof JLabel) {
+            comp.setForeground(fg);
+            comp.setBackground(bg);
+        } else if (comp instanceof JButton) {
+            comp.setBackground(btnBg);
+            comp.setForeground(fg);
+        } else {
+            comp.setBackground(bg);
+            comp.setForeground(fg);
         }
-
-        windowpanel.add(WindowLabel);
-        windowpanel.add(Box.createRigidArea(new Dimension(0, 10)));
-        windowpanel.add(windowcombo);
-
     }
+    container.setBackground(bg);
+    container.repaint();
+}
 
-
-    private JPanel createSettingsSection(String username){
-        JPanel panel = new JPanel();
+// Apply font recursively
+private void applyFont(Container container, int fontSize) {
+    Font newFont = new Font("SansSerif", Font.PLAIN, fontSize);
+    for (Component comp : container.getComponents()) {
+        comp.setFont(newFont);
+        if (comp instanceof Container)
+            applyFont((Container) comp, fontSize);
     }
+    container.revalidate();
+    container.repaint();
+}
+
+// Toggle fullscreen globally
+private void toggleFullScreen(boolean enable) {
+    frame.dispose();
+    frame.setUndecorated(enable);
+    frame.setExtendedState(enable ? JFrame.MAXIMIZED_BOTH : JFrame.NORMAL);
+    if (!enable) {
+        frame.setSize(1200, 700);
+        frame.setLocationRelativeTo(null);
+    }
+    frame.setVisible(true);
+}
+
+private void applyGlobalSettings() {
+    applyTheme(frame.getContentPane(), currentTheme);
+    applyFont(frame.getContentPane(), currentFontSize);
+    toggleFullScreen(currentFullScreen);
+}
 
 }
