@@ -1,0 +1,8 @@
+run javac -cp ".;lib\mssql-jdbc-13.2.1.jre11.jar" Database.java TestConnection.java
+java -cp ".;lib\mssql-jdbc-13.2.1.jre11.jar" TestConnection
+
+SELECT * FROM Categories;
+
+javac -cp ".;lib\mssql-jdbc-13.2.1.jre11.jar" *.java
+java -cp ".;lib\mssql-jdbc-13.2.1.jre11.jar" gui
+

@@ -1,0 +1,24 @@
+Swing is not thread safe, GUI operations should run on EDT(Event Dispatch Thread)
+invokeLater schedules gui creation
+() -> new gui().createLogin() its a lambda expression
+JFrame is a builtin class, inside it:
+-JFrame =>window
+-JButton =>button
+-JLabel =>label
+-JTextfield =>input box
+-JPanel =>container
+-JPasswordField
+
+.addActionListener(e -> { ... })
+-Used to react to user actions
+-Usually used on buttons
+-Runs your code when the action happens
+JOptionPane is a built-in Swing class used to show popup messages
+//1. You create the button first
+JButton addCustomer = new JButton("Add Customer");
+//2.You add it to a panel
+ManagementPanel.add(addCustomer);
+^Put this button on the ManagementPanel so it appears in the GUI.
+
+-/List<Object[]> categories = fetchCategories();
+List interface from java.util

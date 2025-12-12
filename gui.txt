@@ -1,0 +1,12 @@
+addButton.addActionListener(e -> {
+            String newCategoryName = nameTextField.getText().trim();
+            if (!newCategoryName.isEmpty()) {
+                String newId = saveCategory(newCategoryName);
+                Object[] rowData = {newCategoryName, newId};
+                tableModel.addRow(rowData);
+                nameTextField.setText("");
+            } else {
+                JOptionPane.showMessageDialog(frame, "Category name can't be empty.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        

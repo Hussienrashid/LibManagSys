@@ -1,0 +1,406 @@
+JDBC Connection Code for SQL Server;;;;
+import java.sql.*;
+
+public class DBConnection {
+    private static final String URL =
+        "jdbc:sqlserver://localhost:1433;databaseName=YourDB;encrypt=false;";
+    private static final String USER = "sa";
+    private static final String PASSWORD = "yourPassword";
+
+    public static Connection getConnection() {
+        Connection conn = null;
+        try {
+            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+            conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            System.out.println("Connected!");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return conn;
+    }
+}
+
+insert:
+public void addStudent(String name, int age){
+    String sql = "INSERT INTO Students(name, age) VALUES (?, ?)";
+
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement pst = conn.prepareStatement(sql)) {
+
+        pst.setString(1, name);
+        pst.setInt(2, age);
+        pst.executeUpdate();
+        System.out.println("Inserted!");
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+
+JDBC + Swing Example Interaction;;;
+btnAdd.addActionListener(e -> {
+    String name = txtName.getText();
+    int age = Integer.parseInt(txtAge.getText());
+    addStudent(name, age);
+});
+
+adduserbutton.addActionListener(e -> {
+    String name = Nametextfield.getText().trim();
+    String surname = Surnametextfield.getText().trim();
+    String pin = Numbertextfield.getText().trim();
+
+    if (name.isEmpty() || surname.isEmpty() || pin.isEmpty()) {
+        JOptionPane.showMessageDialog(frame, "All fields are required.",
+                "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    String sql = "INSERT INTO Users (Name, Surname, Pin) VALUES (?, ?, ?)";
+
+    try (Connection conn = Database.connect();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setString(1, name);
+        ps.setString(2, surname);
+        ps.setString(3, pin);
+        ps.executeUpdate();
+
+        JOptionPane.showMessageDialog(frame, "User added successfully!");
+        Nametextfield.setText("");
+        Surnametextfield.setText("");
+        Numbertextfield.setText("");
+
+    } catch (Exception ex) {
+        ex.printStackTrace();
+        JOptionPane.showMessageDialog(frame, "Error adding user.",
+                "Error", JOptionPane.ERROR_MESSAGE);
+    }
+});
+
+addcustomerbutton.addActionListener(e -> {
+    String name = Nametextfield.getText().trim();
+    String surname = Surnametextfield.getText().trim();
+    String phone = Numbertextfield.getText().trim();
+    int age = (int) ageSpinner.getValue();
+
+    if (name.isEmpty() || surname.isEmpty()) {
+        JOptionPane.showMessageDialog(frame, "Name and surname are required.",
+                "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    String sql = "INSERT INTO Customers (Name, Surname, Phone, Age) VALUES (?, ?, ?, ?)";
+
+    try (Connection conn = Database.connect();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setString(1, name);
+        ps.setString(2, surname);
+        ps.setString(3, phone);
+        ps.setInt(4, age);
+        ps.executeUpdate();
+
+        JOptionPane.showMessageDialog(frame, "Customer added successfully!");
+        Nametextfield.setText("");
+        Surnametextfield.setText("");
+        Numbertextfield.setText("");
+        ageSpinner.setValue(18);
+
+    } catch (Exception ex) {
+        ex.printStackTrace();
+        JOptionPane.showMessageDialog(frame, "Error adding customer.",
+                "Error", JOptionPane.ERROR_MESSAGE);
+    }
+});
+
+addauthorbutton.addActionListener(e -> {
+    String name = Nametextfield.getText().trim();
+    String surname = Surnametextfield.getText().trim();
+    String phone = Numbertextfield.getText().trim();
+    String ageText = agetextfield.getText().trim();
+
+    if (name.isEmpty() || surname.isEmpty()) {
+        JOptionPane.showMessageDialog(frame, "Name and surname are required.",
+                "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    Integer age = null;
+    if (!ageText.isEmpty()) {
+        try {
+            age = Integer.parseInt(ageText);
+        } catch (NumberFormatException nfe) {
+            JOptionPane.showMessageDialog(frame, "Age must be a number.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+    }
+
+    String sql = "INSERT INTO Authors (Name, Surname, Phone, Age) VALUES (?, ?, ?, ?)";
+
+    try (Connection conn = Database.connect();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setString(1, name);
+        ps.setString(2, surname);
+        ps.setString(3, phone);
+        if (age == null) ps.setNull(4, java.sql.Types.INTEGER);
+        else ps.setInt(4, age);
+
+        ps.executeUpdate();
+
+        JOptionPane.showMessageDialog(frame, "Author added successfully!");
+        Nametextfield.setText("");
+        Surnametextfield.setText("");
+        Numbertextfield.setText("");
+        agetextfield.setText("");
+
+    } catch (Exception ex) {
+        ex.printStackTrace();
+        JOptionPane.showMessageDialog(frame, "Error adding author.",
+                "Error", JOptionPane.ERROR_MESSAGE);
+    }
+});
+
+addPublisherbutton.addActionListener(e -> {
+    String name = Nametextfield.getText().trim();
+    String location = Locationtextfield.getText().trim();
+    String phone = Numbertextfield.getText().trim();
+
+    if (name.isEmpty()) {
+        JOptionPane.showMessageDialog(frame, "Name is required.",
+                "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    String sql = "INSERT INTO Publishers (Name, Location, Phone) VALUES (?, ?, ?)";
+
+    try (Connection conn = Database.connect();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setString(1, name);
+        ps.setString(2, location);
+        ps.setString(3, phone);
+        ps.executeUpdate();
+
+        JOptionPane.showMessageDialog(frame, "Publisher added successfully!");
+        Nametextfield.setText("");
+        Locationtextfield.setText("");
+        Numbertextfield.setText("");
+
+    } catch (Exception ex) {
+        ex.printStackTrace();
+        JOptionPane.showMessageDialog(frame, "Error adding publisher.",
+                "Error", JOptionPane.ERROR_MESSAGE);
+    }
+});
+
+private List<Object[]> fetchCategories() {
+    List<Object[]> data = new ArrayList<>();
+    String sql = "SELECT Name, CategoryID FROM Categories ORDER BY Name";
+
+    try (Connection conn = Database.connect();
+         PreparedStatement ps = conn.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+        while (rs.next()) {
+            data.add(new Object[]{
+                    rs.getString("Name"),
+                    rs.getInt("CategoryID")
+            });
+        }
+    } catch (Exception ex) {
+        ex.printStackTrace();
+    }
+    return data;
+}
+
+private boolean deleteCategory(String id) {
+    System.out.println("Deleting category with ID: " + id);
+    String sql = "DELETE FROM Categories WHERE CategoryID = ?";
+
+    try (Connection conn = Database.connect();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setInt(1, Integer.parseInt(id));
+        int rows = ps.executeUpdate();
+        return rows > 0;
+
+    } catch (Exception ex) {
+        ex.printStackTrace();
+        return false;
+    }
+}
+
+searchBtn.addActionListener(e -> {
+    tableModel.setRowCount(0);
+    String searchText = booktextfield.getText().trim();
+
+    if (searchText.isEmpty()) {
+        JOptionPane.showMessageDialog(frame, "Enter a title or ISBN to search.",
+                "Warning", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    String sql =
+        "SELECT b.Title, " +
+        "       CONCAT(a.Name, ' ', a.Surname) AS AuthorName, " +
+        "       CASE WHEN b.Copies > 0 THEN 'Available' ELSE 'Unavailable' END AS Availability " +
+        "FROM Books b " +
+        "LEFT JOIN Authors a ON b.AuthorID = a.AuthorID " +
+        "WHERE b.Title LIKE ? OR b.ISBN LIKE ?";
+
+    try (Connection conn = Database.connect();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        String pattern = "%" + searchText + "%";
+        ps.setString(1, pattern);
+        ps.setString(2, pattern);
+
+        try (ResultSet rs = ps.executeQuery()) {
+            boolean found = false;
+            while (rs.next()) {
+                found = true;
+                tableModel.addRow(new Object[]{
+                        rs.getString("Title"),
+                        rs.getString("AuthorName"),
+                        rs.getString("Availability")
+                });
+            }
+            if (!found) {
+                tableModel.addRow(new Object[]{"No results found", "", ""});
+            }
+        }
+    } catch (Exception ex) {
+        ex.printStackTrace();
+        JOptionPane.showMessageDialog(frame, "Error searching books.",
+                "Error", JOptionPane.ERROR_MESSAGE);
+    }
+});
+
+searchBtn.addActionListener(e -> {
+    tableModel.setRowCount(0);
+    String searchText = authortextfield.getText().trim();
+
+    if (searchText.isEmpty()) {
+        JOptionPane.showMessageDialog(frame, "Enter an author name.",
+                "Warning", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    String sql =
+        "SELECT b.Title, " +
+        "       CONCAT(a.Name, ' ', a.Surname) AS AuthorName, " +
+        "       CASE WHEN b.Copies > 0 THEN 'Available' ELSE 'Unavailable' END AS Availability " +
+        "FROM Books b " +
+        "JOIN Authors a ON b.AuthorID = a.AuthorID " +
+        "WHERE a.Name LIKE ? OR a.Surname LIKE ? " +
+        "   OR CONCAT(a.Name, ' ', a.Surname) LIKE ?";
+
+    try (Connection conn = Database.connect();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        String pattern = "%" + searchText + "%";
+        ps.setString(1, pattern);
+        ps.setString(2, pattern);
+        ps.setString(3, pattern);
+
+        try (ResultSet rs = ps.executeQuery()) {
+            boolean found = false;
+            while (rs.next()) {
+                found = true;
+                tableModel.addRow(new Object[]{
+                        rs.getString("Title"),
+                        rs.getString("AuthorName"),
+                        rs.getString("Availability")
+                });
+            }
+            if (!found) {
+                tableModel.addRow(new Object[]{"No results found", "", ""});
+            }
+        }
+    } catch (Exception ex) {
+        ex.printStackTrace();
+        JOptionPane.showMessageDialog(frame, "Error searching by author.",
+                "Error", JOptionPane.ERROR_MESSAGE);
+    }
+});
+
+private void displayAllBooks(String username) {
+    frame.getContentPane().removeAll();
+    frame.setLayout(new BorderLayout());
+
+    JLabel title = new JLabel("All Books", SwingConstants.CENTER);
+    title.setFont(new Font("SansSerif", Font.BOLD, 24));
+    frame.add(title, BorderLayout.NORTH);
+
+    String[] columnNames = { "Title", "Author", "ISBN", "Year", "Category", "Copies Available" };
+    DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
+        }
+    };
+    JTable booksTable = new JTable(tableModel);
+    JScrollPane scrollPane = new JScrollPane(booksTable);
+    frame.add(scrollPane, BorderLayout.CENTER);
+
+    String sql =
+        "SELECT b.Title, " +
+        "       CONCAT(a.Name, ' ', a.Surname) AS AuthorName, " +
+        "       b.ISBN, " +
+        "       b.YearPublished, " +
+        "       c.Name AS CategoryName, " +
+        "       b.Copies " +
+        "FROM Books b " +
+        "LEFT JOIN Authors a ON b.AuthorID = a.AuthorID " +
+        "LEFT JOIN Categories c ON b.CategoryID = c.CategoryID " +
+        "ORDER BY b.Title";
+
+    try (Connection conn = Database.connect();
+         PreparedStatement ps = conn.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+        while (rs.next()) {
+            tableModel.addRow(new Object[]{
+                    rs.getString("Title"),
+                    rs.getString("AuthorName"),
+                    rs.getString("ISBN"),
+                    rs.getInt("YearPublished"),
+                    rs.getString("CategoryName"),
+                    rs.getInt("Copies")
+            });
+        }
+    } catch (Exception ex) {
+        ex.printStackTrace();
+        JOptionPane.showMessageDialog(frame, "Error loading books.",
+                "Error", JOptionPane.ERROR_MESSAGE);
+    }
+    JButton back = new JButton("Back to Dashboard");
+    back.addActionListener(j -> librarymanagmentSystem(username, 0));
+    frame.add(back, BorderLayout.SOUTH);
+    applyGlobalSettings();
+    frame.revalidate();
+    frame.repaint();
+}
+=>
+🔹 In adduser(String username)
+You paste the INSERT code inside the button listener.
+🔹 In addcustomers(String username)
+Paste the Customers INSERT code inside the add button.
+🔹 In addauthor(String username)
+Paste the Authors INSERT code inside the button.
+🔹 In addpublisher(String username)
+Paste the Publishers INSERT code inside the button.
+🔹 In addcategory(String username)
+
+Replace:
+fetchCategories()
+deleteCategory()
+With the real versions I gave you.
+🔹 In SearchByTitle()
+Replace the fake “if (contains book)” logic with the SQL SELECT I gave.
+🔹 In SearchByAuthor()
+Replace the fake "andrew" check with the SQL JOIN query.
+🔹 In displayAllBooks()
+Replace the hardcoded Object[][] with the SQL SELECT.
