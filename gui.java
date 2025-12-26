@@ -47,7 +47,16 @@ public class gui {
         loginBtn.addActionListener(e -> {
             String id = userField.getText();
             String password = new String(passField.getPassword());
-            if (id.equals("") && password.equals("")) {
+            if (id.isEmpty() || password.isEmpty()) {
+                JOptionPane.showMessageDialog(
+                frame,
+                "Please enter username and password",
+                "Error",
+                JOptionPane.WARNING_MESSAGE
+                );
+            return;
+        }
+            if (id.equals("huss") && password.equals("123")) {
                 librarymanagmentSystem(id,0);
             } else {
                 JOptionPane.showMessageDialog(frame, "invalid username or password", "login failed",
@@ -136,7 +145,7 @@ public class gui {
         display.addActionListener(v -> {
             displayAllBooks(username);
         });
-        logout.addActionListener(l -> {
+        logouts.addActionListener(l -> {
             frame.dispose();
             createLogin();
         });
@@ -302,7 +311,6 @@ private void addbook(String username) {
             int categoryId = categoryMap.get(selectedCategory);
             String sql = "INSERT INTO Books (Title, AuthorID, PublisherID, CategoryID, ISBN, YearPublished, Copies) " +
                          "VALUES (?, ?, ?, ?, ?, ?, ?)";
-
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, bookTitle);
             ps.setInt(2, authorId);
@@ -415,13 +423,13 @@ private void addbook(String username) {
                 tableModel.addRow(new Object[]{"No results found", "", ""});
             }
         }
-    } catch (Exception ex) {
-        ex.printStackTrace();
-        JOptionPane.showMessageDialog(frame,
+        } catch (Exception ex) {
+         ex.printStackTrace();
+             JOptionPane.showMessageDialog(frame,
                 "Error searching books.",
                 "Error", JOptionPane.ERROR_MESSAGE);
-    }
-});
+            }
+        });
 
         JButton back = new JButton("Back to Dashboard");
         back.addActionListener(j -> {
@@ -432,38 +440,38 @@ private void addbook(String username) {
         frame.revalidate();
         frame.repaint();
     }
-    private void SearchByAuthor(String username) {
-        frame.getContentPane().removeAll();
-        frame.setLayout(new BorderLayout());
-        JLabel title = new JLabel("Search by Author", SwingConstants.CENTER);
-        title.setFont(new Font("SansSerif", Font.BOLD, 24));
-        frame.add(title, BorderLayout.NORTH);
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        JPanel form = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        JLabel authorlabel = new JLabel("Book Author:");
-        authorlabel.setHorizontalAlignment(SwingConstants.CENTER);
-        form.add(authorlabel, gbc);
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        JTextField authortextfield = new JTextField(40);
-        form.add(authortextfield, gbc);
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.fill = GridBagConstraints.NONE;
-        JButton searchBtn = new JButton("Search");
-        form.add(searchBtn, gbc);
-        JPanel formWrapper = new JPanel(new GridBagLayout());
-        formWrapper.add(form);
-        mainPanel.add(formWrapper);
-        String[] columnNames = { "Title", "Author", "Availability" };
-        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
+        private void SearchByAuthor(String username) {
+            frame.getContentPane().removeAll();
+            frame.setLayout(new BorderLayout());
+            JLabel title = new JLabel("Search by Author", SwingConstants.CENTER);
+            title.setFont(new Font("SansSerif", Font.BOLD, 24));
+            frame.add(title, BorderLayout.NORTH);
+            JPanel mainPanel = new JPanel();
+            mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+            mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+            JPanel form = new JPanel(new GridBagLayout());
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.insets = new Insets(5, 5, 5, 5);
+            gbc.gridx = 0;
+            gbc.gridy = 0;
+            JLabel authorlabel = new JLabel("Book Author:");
+            authorlabel.setHorizontalAlignment(SwingConstants.CENTER);
+            form.add(authorlabel, gbc);
+            gbc.gridx = 0;
+            gbc.gridy = 1;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            JTextField authortextfield = new JTextField(40);
+            form.add(authortextfield, gbc);
+            gbc.gridx = 0;
+            gbc.gridy = 2;
+            gbc.fill = GridBagConstraints.NONE;
+            JButton searchBtn = new JButton("Search");
+            form.add(searchBtn, gbc);
+            JPanel formWrapper = new JPanel(new GridBagLayout());
+            formWrapper.add(form);
+            mainPanel.add(formWrapper);
+            String[] columnNames = { "Title", "Author", "Availability" };
+            DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -1336,13 +1344,13 @@ try (Connection conn = Database.connect();
         JButton back = new JButton("Back to Management");
         back.addActionListener(e -> librarymanagmentSystem(username, 1));
         frame.add(back, BorderLayout.SOUTH);
-        // --- 6. Action Listener for Dynamic Update ---
+        // --- 6. Action Listen for Dynamic Update ---
         addButton.addActionListener(e -> {
             String newapi = nameTextField.getText().trim();
             if (!newapi.isEmpty()) {
                 // 1. Save and get the ID (Simulated)
                 String newId = saveapi(newapi);
-                // 2. Create the row data as an Object array
+                // 2. Create the row data as an Object arr
                 Object[] rowData = {newapi, newId};
                 // 3. Add the new row to the table model (automatic UI update)
                 tableModel.addRow(rowData);
@@ -1363,7 +1371,7 @@ try (Connection conn = Database.connect();
             model.addRow(apiRow);
         }
     }
-    /** Fetches simulated categories from a 'database' using ArrayList and Object[]. */
+    /** Fetches simulated categories from a 'database' using ArrList and Object[]. */
     private List<Object[]> fetchapi() {
         List<Object[]> data = new ArrayList<>();
         return data;
@@ -1446,7 +1454,6 @@ try (Connection conn = Database.connect();
 }
   private void applyTheme(Container container, String theme) {
     Color bg, fg, btnBg;
-
     if ("Dark".equalsIgnoreCase(theme)) {
         bg = new Color(45, 45, 45);
         fg = Color.WHITE;
@@ -1456,7 +1463,6 @@ try (Connection conn = Database.connect();
         fg = Color.BLACK;
         btnBg = new Color(230, 230, 230);
     }
-
     for (Component comp : container.getComponents()) {
         if (comp instanceof JPanel) {
             applyTheme((Container) comp, theme);
