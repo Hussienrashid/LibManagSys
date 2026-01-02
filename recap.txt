@@ -1,0 +1,88 @@
+✅ FINAL RECAP — CATEGORY MANAGEMENT (JAVA SWING + JDBC)
+1️⃣ DATABASE (SOURCE OF TRUTH)
+Your table:
+Categories
+-----------
+CategoryID  (INT, AUTO_INCREMENT, PRIMARY KEY)
+Name        (VARCHAR)
+✔ Database stores everything
+✔ No hard-coded categories
+2️⃣ JTable SETUP (MATCH DB)
+String[] columnNames = {"CategoryID", "Name"};
+DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
+JTable categoryTable = new JTable(tableModel);
+✔ Column index 0 → CategoryID
+✔ Column index 1 → Name
+3️⃣ FETCH FROM DATABASE (NO HARDCODE)
+public List<Object[]> fetchCategories() {
+    List<Object[]> data = new ArrayList<>();
+    String sql = "SELECT CategoryID, Name FROM Categories";
+    try (Connection con = Database.connect();
+         PreparedStatement ps = con.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) {
+            data.add(new Object[]{
+                rs.getInt("CategoryID"),
+                rs.getString("Name")
+            });
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return data;
+}
+✔ DB → Java
+✔ No fake data
+4️⃣ LOAD DATA INTO TABLE (ONE METHOD)
+private void loadCategoryData(DefaultTableModel model) {
+    model.setRowCount(0);
+    for (Object[] row : fetchCategories()) {
+        model.addRow(row);
+    }
+}
+
+
+✔ Reusable
+✔ Safe
+✔ Always syncs with DB
+5️⃣ ADD CATEGORY (CORRECT WAY)
+addButton.addActionListener(e -> {
+    String name = nameTextField.getText().trim();
+    if (name.isEmpty()) {
+        JOptionPane.showMessageDialog(frame, "Category name can't be empty.");
+        return;
+    }
+    String sql = "INSERT INTO Categories (Name) VALUES (?)";
+    try (Connection conn = Database.connect();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setString(1, name);
+        ps.executeUpdate();
+        nameTextField.setText("");
+        loadCategoryData(tableModel); // 🔥 refresh from DB
+        JOptionPane.showMessageDialog(frame, "Category added successfully!");
+    } catch (Exception ex) {
+        ex.printStackTrace();
+    }
+});
+✔ Insert → DB
+✔ Refresh → JTable
+6️⃣ DELETE CATEGORY (CORRECT ID + COLUMN)
+int selectedRow = categoryTable.getSelectedRow();
+if (selectedRow == -1) return;
+int categoryId = (int) tableModel.getValueAt(selectedRow, 0);
+String categoryName = (String) tableModel.getValueAt(selectedRow, 1);
+✔ ID = column 0
+✔ Name = column 1
+SQL:
+DELETE FROM Categories WHERE CategoryID = ?
+7️⃣ REMOVE / IGNORE THESE ❌
+🚫 Hard-coded category lists
+🚫 dao.addCategory()
+🚫 txtCategoryId
+🚫 Fake ID generation
+🚫 loadCategories() without parameters
+ONE architecture only.
+🧠 GOLDEN RULE (REMEMBER FOREVER)
+Database = storage
+JTable = display only
+After any DB change → reload table from DB

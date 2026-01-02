@@ -3,6 +3,7 @@ import java.awt.*; //abstract window toolkit, gui
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import javax.swing.table.DefaultTableModel; //used with tables Jtable,default->allows to add,store,remove
 import java.time.Year;
@@ -95,6 +96,13 @@ public class gui {
         dashboardPanel.add(reminders);
         dashboardPanel.add(logout);
         tabbedPane.addTab("Dashboard", dashboardPanel);
+        reminders.addActionListener(e -> {
+        JOptionPane.showMessageDialog(
+        dashboardPanel,
+        "Return reminders sent successfully!"
+    );
+});
+
         // === Management Tab ===
         JPanel ManagementPanel = new JPanel(new GridLayout(2, 2, 10, 10));
         ManagementPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
@@ -115,14 +123,11 @@ public class gui {
         ManagementPanel.add(ui);
         ManagementPanel.add(logouts);
         tabbedPane.addTab("Management", ManagementPanel);
-        // === Reports panel ====
         JPanel reportspanel = new JPanel(new GridLayout(2, 2, 10, 10));
         reportspanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         tabbedPane.addTab("Reports", reportspanel);
         tabbedPane.setSelectedIndex(tabIndex);
-        // === Add tabbedPane to frame ===
         frame.add(tabbedPane, BorderLayout.CENTER);
-        // === Button actions ===
         logout.addActionListener(l -> {
             frame.dispose();
             createLogin();
@@ -189,9 +194,7 @@ private void addbook(String username) {
     GridBagConstraints gbc = new GridBagConstraints();
     gbc.insets = new Insets(6, 5, 5, 5);
     gbc.fill = GridBagConstraints.HORIZONTAL;
-    // ------------------------------------------------------------------------------------------------
-    // BOOK TITLE
-    // ------------------------------------------------------------------------------------------------
+   
     gbc.gridx = 0;
     gbc.gridy = 0;
     JLabel booktitlelabel = new JLabel("Book Title:");
@@ -200,9 +203,7 @@ private void addbook(String username) {
     gbc.gridy = 1;
     JTextField booktextfield = new JTextField(40);
     form.add(booktextfield, gbc);
-    // ------------------------------------------------------------------------------------------------
-    // AUTHOR DROPDOWN
-    // ------------------------------------------------------------------------------------------------
+  
     gbc.gridx = 0;
     gbc.gridy = 2;
     JLabel authorlabel = new JLabel("Author:");
@@ -211,9 +212,6 @@ private void addbook(String username) {
     gbc.gridy = 3;
     JComboBox<String> authorDropdown = new JComboBox<>();
     form.add(authorDropdown, gbc);
-    // ------------------------------------------------------------------------------------------------
-    // PUBLISHER DROPDOWN
-    // ------------------------------------------------------------------------------------------------
     gbc.gridx = 0;
     gbc.gridy = 4;
     JLabel publisherLabel = new JLabel("Publisher:");
@@ -383,14 +381,14 @@ private void addbook(String username) {
         mainPanel.add(scrollPane);
         frame.add(mainPanel, BorderLayout.CENTER);
         searchBtn.addActionListener(e -> {
-    tableModel.setRowCount(0);
-    String searchText = booktextfield.getText().trim();
+        tableModel.setRowCount(0);
+        String searchText = booktextfield.getText().trim();
 
-    if (searchText.isEmpty()) {
-        JOptionPane.showMessageDialog(frame, "Enter a title or ISBN to search.",
+        if (searchText.isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "Enter a title or ISBN to search.",
                 "Warning", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
+            return;
+         }
 
     String sql =
         "SELECT b.Title, " +
@@ -409,7 +407,6 @@ private void addbook(String username) {
 
         try (ResultSet rs = ps.executeQuery()) {
             boolean found = false;
-
             while (rs.next()) {
                 found = true;
                 tableModel.addRow(new Object[]{
@@ -418,7 +415,6 @@ private void addbook(String username) {
                         rs.getString("Availability")
                 });
             }
-
             if (!found) {
                 tableModel.addRow(new Object[]{"No results found", "", ""});
             }
@@ -510,10 +506,8 @@ private void addbook(String username) {
         ps.setString(1, pattern);
         ps.setString(2, pattern);
         ps.setString(3, pattern);
-
         try (ResultSet rs = ps.executeQuery()) {
             boolean found = false;
-
             while (rs.next()) {
                 found = true;
                 tableModel.addRow(new Object[]{
@@ -525,15 +519,15 @@ private void addbook(String username) {
 
             if (!found) {
                 tableModel.addRow(new Object[]{"No results found", "", ""});
+                }
             }
-        }
-    } catch (Exception ex) {
-        ex.printStackTrace();
-        JOptionPane.showMessageDialog(frame,
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(frame,
                 "Error searching by author.",
                 "Error", JOptionPane.ERROR_MESSAGE);
-    }
-});
+            }
+        });
 
 
         JButton back = new JButton("Back to Dashboard");
@@ -556,7 +550,6 @@ private void addbook(String username) {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(6, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        // Member ComboBox (non-editable)
         gbc.gridx = 0;
         gbc.gridy = 0;
         JLabel memberLabel = new JLabel("Member:");
@@ -566,7 +559,6 @@ private void addbook(String username) {
         JComboBox<String> memberBox = new JComboBox<>(new String[] { "John Doe", "Jane Smith", "Ali Ahmad" });
         memberBox.setEditable(false);
         form.add(memberBox, gbc);
-        // Search Book
         gbc.gridy = 2;
         JLabel searchLabel = new JLabel("Search Book (Title or ISBN):");
         searchLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -574,7 +566,6 @@ private void addbook(String username) {
         gbc.gridy = 3;
         JTextField searchField = new JTextField(40);
         form.add(searchField, gbc);
-
         gbc.gridy = 4;
         JLabel bookLabel = new JLabel("Select Book:");
         bookLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -617,22 +608,19 @@ private void addbook(String username) {
         gbc.gridy = 7;
         JSpinner checkoutDate = new JSpinner(new SpinnerDateModel());
         form.add(checkoutDate, gbc);
-       
         gbc.gridy = 8;
         JLabel returnLabel = new JLabel("Return Date:");
         returnLabel.setHorizontalAlignment(SwingConstants.CENTER);
         form.add(returnLabel, gbc);
         gbc.gridy = 9;
         JSpinner returnDate = new JSpinner(new SpinnerDateModel());
-        form.add(returnDate, gbc);
-        
+        form.add(returnDate, gbc);    
         gbc.gridy = 10;
         gbc.fill = GridBagConstraints.NONE;
         JButton checkoutBtn = new JButton("Check Out");
         form.add(checkoutBtn, gbc);
         wrapper.add(form);
         frame.add(wrapper, BorderLayout.CENTER);
-        // Back button
         JButton back = new JButton("Back to Dashboard");
         back.addActionListener(j -> librarymanagmentSystem(username, 0));
         frame.add(back, BorderLayout.SOUTH);
@@ -651,7 +639,6 @@ private void addbook(String username) {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(6, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        // Member ComboBox (non-editable)
         gbc.gridx = 0;
         gbc.gridy = 0;
         JLabel memberLabel = new JLabel("Member:");
@@ -661,7 +648,6 @@ private void addbook(String username) {
         JComboBox<String> memberBox = new JComboBox<>(new String[] { "John Doe", "Jane Smith", "Ali Ahmad" });
         memberBox.setEditable(false);
         form.add(memberBox, gbc);
-        // Books currently checked out by the selected member
         gbc.gridy = 2;
         JLabel bookLabel = new JLabel("Select Book to Return:");
         bookLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -670,11 +656,9 @@ private void addbook(String username) {
         JComboBox<String> bookBox = new JComboBox<>();
         bookBox.setEditable(false);
         form.add(bookBox, gbc);
-        // Populate books when member is selected
         memberBox.addActionListener(e -> {
             bookBox.removeAllItems();
             String member = (String) memberBox.getSelectedItem();
-            // Example data: in real app, fetch from database
             if (member.equals("John Doe")) {
                 bookBox.addItem("978-3-16-148410-0 - The Book of Dreams");
                 bookBox.addItem("978-0-14-028333-4 - A Good Book");
@@ -684,8 +668,7 @@ private void addbook(String username) {
                 bookBox.addItem("978-0-262-13472-9 - Learning Java");
             }
         });
-        memberBox.setSelectedIndex(0); // trigger initial population
-        // Return Button
+        memberBox.setSelectedIndex(0); 
         gbc.gridy = 4;
         gbc.fill = GridBagConstraints.NONE;
         JButton returnBtn = new JButton("Return Book");
@@ -698,7 +681,7 @@ private void addbook(String username) {
                         "Book '" + book + "' has been successfully returned by " + member + ".",
                         "Return Successful",
                         JOptionPane.INFORMATION_MESSAGE);
-                bookBox.removeItem(book); // remove returned book from ComboBox
+                bookBox.removeItem(book); 
             } else {
                 JOptionPane.showMessageDialog(frame, "No book selected.", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -719,10 +702,8 @@ private void addbook(String username) {
         JLabel title = new JLabel("All Books", SwingConstants.CENTER);
         title.setFont(new Font("SansSerif", Font.BOLD, 24));
         frame.add(title, BorderLayout.NORTH);
-        // Table columns
         String[] columnNames = { "Title", "Author", "ISBN", "Year", "Category", "Copies Available" };
-        // Example data: in a real app, fetch from database
-        //String[] columnNames = { "Title", "Author", "ISBN", "Year", "Category", "Copies Available" };
+    
 
 DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
     @Override
@@ -731,11 +712,6 @@ DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
     }
 };
 
-/*JTable booksTable = new JTable(tableModel);
-JScrollPane scrollPane = new JScrollPane(booksTable);
-frame.add(scrollPane, BorderLayout.CENTER);*/
-
-// === REAL SQL QUERY ===
 String sql =
     "SELECT b.Title, " +
     "       CONCAT(a.Name, ' ', a.Surname) AS AuthorName, " +
@@ -778,7 +754,6 @@ try (Connection conn = Database.connect();
         booksTable.setFillsViewportHeight(true);
         JScrollPane scrollPane = new JScrollPane(booksTable);
         frame.add(scrollPane, BorderLayout.CENTER);
-        // Back button
         JButton back = new JButton("Back to Dashboard");
         back.addActionListener(j -> librarymanagmentSystem(username, 0));
         frame.add(back, BorderLayout.SOUTH);
@@ -797,7 +772,6 @@ try (Connection conn = Database.connect();
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(6, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        // Name
         gbc.gridx = 0;
         gbc.gridy = 0;
         JLabel Namelabel = new JLabel("Name:");
@@ -807,7 +781,6 @@ try (Connection conn = Database.connect();
         gbc.gridy = 1;
         JTextField Nametextfield = new JTextField(40);
         form.add(Nametextfield, gbc);
-        // Surname
         gbc.gridx = 0;
         gbc.gridy = 2;
         JLabel Surnamelabel = new JLabel("Surname:");
@@ -817,7 +790,6 @@ try (Connection conn = Database.connect();
         gbc.gridy = 3;
         JTextField Surnametextfield = new JTextField(40);
         form.add(Surnametextfield, gbc);
-        // Phone Number
         gbc.gridx = 0;
         gbc.gridy = 4;
         JLabel NumberLabel = new JLabel("Phone Number:");
@@ -827,7 +799,6 @@ try (Connection conn = Database.connect();
         gbc.gridy = 5;
         JTextField Numbertextfield = new JTextField(40);
         form.add(Numbertextfield, gbc);
-        // Age
         gbc.gridx = 0;
         gbc.gridy = 6;
         JLabel AgeLabel = new JLabel("Age:");
@@ -837,7 +808,6 @@ try (Connection conn = Database.connect();
         gbc.gridy = 7;
         JSpinner ageSpinner = new JSpinner(new SpinnerNumberModel(18, 1, 120, 1));
         form.add(ageSpinner, gbc);
-        // Add Customer Button
         gbc.gridx = 0;
         gbc.gridy = 14;
         gbc.fill = GridBagConstraints.NONE;
@@ -845,16 +815,16 @@ try (Connection conn = Database.connect();
         form.add(addcustomerbutton, gbc);
 
         addcustomerbutton.addActionListener(e -> {
-    String name = Nametextfield.getText().trim();
-    String surname = Surnametextfield.getText().trim();
-    String phone = Numbertextfield.getText().trim();
-    int age = (int) ageSpinner.getValue();
+        String name = Nametextfield.getText().trim();
+        String surname = Surnametextfield.getText().trim();
+        String phone = Numbertextfield.getText().trim();
+        int age = (int) ageSpinner.getValue();
 
-    if (name.isEmpty() || surname.isEmpty()) {
-        JOptionPane.showMessageDialog(frame, "Name and surname are required.",
+        if(name.isEmpty() || surname.isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "Name and surname are required.",
                 "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
+            return;
+        }
 
     try (Connection conn = Database.connect()) {
         String sql = "INSERT INTO Customers (Name, Surname, Phone, Age) VALUES (?, ?, ?, ?)";
@@ -864,9 +834,7 @@ try (Connection conn = Database.connect();
         ps.setString(2, surname);
         ps.setString(3, phone);
         ps.setInt(4, age);
-
         ps.executeUpdate();
-
         JOptionPane.showMessageDialog(frame, "Customer added successfully!");
 
         Nametextfield.setText("");
@@ -874,17 +842,16 @@ try (Connection conn = Database.connect();
         Numbertextfield.setText("");
         ageSpinner.setValue(18);
 
-    } catch (Exception ex) {
-        ex.printStackTrace();
-        JOptionPane.showMessageDialog(frame,
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(frame,
                 "Error adding customer.",
                 "Error", JOptionPane.ERROR_MESSAGE);
-    }
-});
+            }
+        });
 
         wrapper.add(form);
         frame.add(wrapper, BorderLayout.CENTER);
-        // Back button
         JButton back = new JButton("Back to Management");
         back.addActionListener(j -> librarymanagmentSystem(username, 1));
         frame.add(back, BorderLayout.SOUTH);
@@ -903,7 +870,6 @@ try (Connection conn = Database.connect();
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(6, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        // Name
         gbc.gridx = 0;
         gbc.gridy = 0;
         JLabel Namelabel = new JLabel("Name:");
@@ -913,7 +879,6 @@ try (Connection conn = Database.connect();
         gbc.gridy = 1;
         JTextField Nametextfield = new JTextField(40);
         form.add(Nametextfield, gbc);
-        // Surname
         gbc.gridx = 0;
         gbc.gridy = 2;
         JLabel Surnamelabel = new JLabel("Surname:");
@@ -923,7 +888,6 @@ try (Connection conn = Database.connect();
         gbc.gridy = 3;
         JTextField Surnametextfield = new JTextField(40);
         form.add(Surnametextfield, gbc);
-        // Phone Number
         gbc.gridx = 0;
         gbc.gridy = 4;
         JLabel NumberLabel = new JLabel("Pin");
@@ -933,7 +897,6 @@ try (Connection conn = Database.connect();
         gbc.gridy = 5;
         JTextField Numbertextfield = new JTextField(40);
         form.add(Numbertextfield, gbc);
-        // Add User Button
         gbc.gridx = 0;
         gbc.gridy = 14;
         gbc.fill = GridBagConstraints.NONE;
@@ -954,27 +917,21 @@ try (Connection conn = Database.connect();
     try (Connection conn = Database.connect()) {
         String sql = "INSERT INTO Users (Name, Surname, Pin) VALUES (?, ?, ?)";
         PreparedStatement ps = conn.prepareStatement(sql);
-
         ps.setString(1, name);
         ps.setString(2, surname);
         ps.setString(3, pin);
-
         ps.executeUpdate();
-
         JOptionPane.showMessageDialog(frame, "User added successfully!");
-
-        // Clear fields
-        Nametextfield.setText("");
-        Surnametextfield.setText("");
-        Numbertextfield.setText("");
-
-    } catch (Exception ex) {
-        ex.printStackTrace();
-        JOptionPane.showMessageDialog(frame,
+            Nametextfield.setText("");
+            Surnametextfield.setText("");
+            Numbertextfield.setText("");
+            }catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(frame,
             "Error adding user.",
             "Error", JOptionPane.ERROR_MESSAGE);
-    }
-});
+            }
+        });
 
         wrapper.add(form);
         frame.add(wrapper, BorderLayout.CENTER);
@@ -997,7 +954,6 @@ try (Connection conn = Database.connect();
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(6, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        // Name
         gbc.gridx = 0;
         gbc.gridy = 0;
         JLabel Namelabel = new JLabel("Name:");
@@ -1007,7 +963,6 @@ try (Connection conn = Database.connect();
         gbc.gridy = 1;
         JTextField Nametextfield = new JTextField(40);
         form.add(Nametextfield, gbc);
-        // Surname
         gbc.gridx = 0;
         gbc.gridy = 2;
         JLabel Surnamelabel = new JLabel("Surname:");
@@ -1017,7 +972,6 @@ try (Connection conn = Database.connect();
         gbc.gridy = 3;
         JTextField Surnametextfield = new JTextField(40);
         form.add(Surnametextfield, gbc);
-        // Phone Number
         gbc.gridx = 0;
         gbc.gridy = 4;
         JLabel NumberLabel = new JLabel("Phone Number");
@@ -1027,7 +981,6 @@ try (Connection conn = Database.connect();
         gbc.gridy = 6;
         JTextField Numbertextfield = new JTextField(40);
         form.add(Numbertextfield, gbc);
-        // Age
         gbc.gridx = 0;
         gbc.gridy = 8;
         JLabel AgeLabel = new JLabel("Age");
@@ -1037,7 +990,6 @@ try (Connection conn = Database.connect();
         gbc.gridy = 9;
         JTextField agetextfield = new JTextField(40);
         form.add(agetextfield, gbc);
-        // Add User Button
         gbc.gridx = 0;
         gbc.gridy = 14;
         gbc.fill = GridBagConstraints.NONE;
@@ -1045,27 +997,26 @@ try (Connection conn = Database.connect();
         form.add(addauthorbutton, gbc);
 
         addauthorbutton.addActionListener(e -> {
-    String name = Nametextfield.getText().trim();
-    String surname = Surnametextfield.getText().trim();
-    String phone = Numbertextfield.getText().trim();
-    String ageText = agetextfield.getText().trim();
+        String name = Nametextfield.getText().trim();
+        String surname = Surnametextfield.getText().trim();
+        String phone = Numbertextfield.getText().trim();
+        String ageText = agetextfield.getText().trim();
 
-    if (name.isEmpty() || surname.isEmpty()) {
-        JOptionPane.showMessageDialog(frame, "Name and surname are required.",
+        if(name.isEmpty() || surname.isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "Name and surname are required.",
                 "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
-
-    Integer age = null;
-    if (!ageText.isEmpty()) {
-        try {
-            age = Integer.parseInt(ageText);
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(frame, "Age must be numeric.",
-                    "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-    }
+        Integer age = null;
+        if (!ageText.isEmpty()) {
+            try {
+                age = Integer.parseInt(ageText);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(frame, "Age must be numeric.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+            }
+        }
 
     try (Connection conn = Database.connect()) {
         String sql = "INSERT INTO Authors (Name, Surname, Phone, Age) VALUES (?, ?, ?, ?)";
@@ -1079,28 +1030,22 @@ try (Connection conn = Database.connect();
             ps.setNull(4, java.sql.Types.INTEGER);
         else
             ps.setInt(4, age);
-
-        ps.executeUpdate();
-
-        JOptionPane.showMessageDialog(frame, "Author added successfully!");
-
-        Nametextfield.setText("");
-        Surnametextfield.setText("");
-        Numbertextfield.setText("");
-        agetextfield.setText("");
-
-    } catch (Exception ex) {
-        ex.printStackTrace();
-        JOptionPane.showMessageDialog(frame,
+            ps.executeUpdate();
+            JOptionPane.showMessageDialog(frame, "Author added successfully!");
+            Nametextfield.setText("");
+            Surnametextfield.setText("");
+            Numbertextfield.setText("");
+            agetextfield.setText("");
+            } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(frame,
                 "Error adding author.",
                 "Error", JOptionPane.ERROR_MESSAGE);
-    }
-});
-
+            }
+        });
 
         wrapper.add(form);
         frame.add(wrapper, BorderLayout.CENTER);
-        // Back button
         JButton back = new JButton("Back to Management");
         back.addActionListener(j -> librarymanagmentSystem(username, 1));
         frame.add(back, BorderLayout.SOUTH);
@@ -1119,7 +1064,6 @@ try (Connection conn = Database.connect();
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(6, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        // Name
         gbc.gridx = 0;
         gbc.gridy = 0;
         JLabel Namelabel = new JLabel("Name:");
@@ -1129,7 +1073,6 @@ try (Connection conn = Database.connect();
         gbc.gridy = 1;
         JTextField Nametextfield = new JTextField(40);
         form.add(Nametextfield, gbc);
-        // Location
         gbc.gridx = 0;
         gbc.gridy = 2;
         JLabel Locationlabel = new JLabel("Location:");
@@ -1139,7 +1082,6 @@ try (Connection conn = Database.connect();
         gbc.gridy = 3;
         JTextField Locationtextfield = new JTextField(40);
         form.add(Locationtextfield, gbc);
-        // Phone Number
         gbc.gridx = 0;
         gbc.gridy = 4;
         JLabel NumberLabel = new JLabel("Phone Number");
@@ -1149,7 +1091,6 @@ try (Connection conn = Database.connect();
         gbc.gridy = 6;
         JTextField Numbertextfield = new JTextField(40);
         form.add(Numbertextfield, gbc);
-        // Add User Button
         gbc.gridx = 0;
         gbc.gridy = 14;
         gbc.fill = GridBagConstraints.NONE;
@@ -1157,28 +1098,24 @@ try (Connection conn = Database.connect();
         form.add(addPublisherbutton, gbc);
 
         addPublisherbutton.addActionListener(e -> {
-    String name = Nametextfield.getText().trim();
-    String location = Locationtextfield.getText().trim();
-    String phone = Numbertextfield.getText().trim();
+        String name = Nametextfield.getText().trim();
+        String location = Locationtextfield.getText().trim();
+        String phone = Numbertextfield.getText().trim();
 
-    if (name.isEmpty()) {
-        JOptionPane.showMessageDialog(frame, "Publisher name is required.",
+        if (name.isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "Publisher name is required.",
                 "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
+            return;
+        }
 
     try (Connection conn = Database.connect()) {
         String sql = "INSERT INTO Publishers (Name, Location, Phone) VALUES (?, ?, ?)";
         PreparedStatement ps = conn.prepareStatement(sql);
-
         ps.setString(1, name);
         ps.setString(2, location);
         ps.setString(3, phone);
-
         ps.executeUpdate();
-
         JOptionPane.showMessageDialog(frame, "Publisher added successfully!");
-
     } catch (Exception ex) {
         ex.printStackTrace();
         JOptionPane.showMessageDialog(frame,
@@ -1189,7 +1126,6 @@ try (Connection conn = Database.connect();
 
         wrapper.add(form);
         frame.add(wrapper, BorderLayout.CENTER);
-        // Back button
         JButton back = new JButton("Back to Management");
         back.addActionListener(j -> librarymanagmentSystem(username, 1));
         frame.add(back, BorderLayout.SOUTH);
@@ -1200,18 +1136,14 @@ try (Connection conn = Database.connect();
     private void addcategory(String username) {
         frame.getContentPane().removeAll();
         frame.setLayout(new BorderLayout(10, 10));
-        // --- 1. Title ---
         JLabel title = new JLabel("Category Management", SwingConstants.CENTER);
         title.setFont(new Font("SansSerif", Font.BOLD, 28));
         frame.add(title, BorderLayout.NORTH);
-        // --- 2. Table Model and View ---
-        String[] columnNames = {"Category Name", "Category ID"};
+        String[] columnNames = {"CategoryID", "Name"};
         DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
         JTable categoryTable = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(categoryTable);
-        // Load initial data
         loadCategoryData(tableModel);
-        // --- 3. Input Form Panel (WEST) ---
         JPanel formPanel = new JPanel(new GridLayout(4, 1, 10, 10));
         formPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         JTextField nameTextField = new JTextField(20);
@@ -1221,52 +1153,43 @@ try (Connection conn = Database.connect();
         formPanel.add(nameTextField);
         formPanel.add(addButton);
         formPanel.add(deleteButton);
-        // --- 4. Center Layout ---
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, formPanel, scrollPane);
         splitPane.setDividerLocation(250);
         splitPane.setResizeWeight(0.0);
         frame.add(splitPane, BorderLayout.CENTER);
-        // --- 5. Back Button (SOUTH) ---
         JButton back = new JButton("Back to Management");
         back.addActionListener(e -> librarymanagmentSystem(username, 1));
         frame.add(back, BorderLayout.SOUTH);
-        // --- 6. Action Listener for Dynamic Update ---
         addButton.addActionListener(e -> {
-        String newCategoryName = nameTextField.getText().trim();
-        if (newCategoryName.isEmpty()) {
-            JOptionPane.showMessageDialog(frame, "Category name can't be empty.", "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-        }
-        try (Connection conn = Database.connect()) {
-        String sql = "INSERT INTO Categories (Name) VALUES (?)";
-        PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-        ps.setString(1, newCategoryName);
-        ps.executeUpdate(); // IMPORTANT
-        ResultSet rs = ps.getGeneratedKeys(); // IMPORTANT
-        if (rs.next()) {
-            int newId = rs.getInt(1);
-
-            Object[] rowData = {newCategoryName, newId};
-            tableModel.addRow(rowData);
-
-            nameTextField.setText("");
-
-            JOptionPane.showMessageDialog(frame, "Category added successfully!");
-        }
-    } catch (Exception ex) {
-        ex.printStackTrace();
-        JOptionPane.showMessageDialog(frame, "Error adding category.", "Error", JOptionPane.ERROR_MESSAGE);
-    }
-});
-
-        deleteButton.addActionListener(i -> {
-            int selectedRow = categoryTable.getSelectedRow();
-            if (selectedRow == -1) {
-                JOptionPane.showMessageDialog(frame, "Please select a category to delete.", "Warning", JOptionPane.WARNING_MESSAGE);
+            String name = nameTextField.getText().trim();
+            if (name.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Category name can't be empty.");
                 return;
             }
-            String categoryId = (String) tableModel.getValueAt(selectedRow, 1);
-            String categoryName = (String) tableModel.getValueAt(selectedRow, 0);
+            String sql = "INSERT INTO Categories (Name) VALUES (?)";
+            try (Connection conn = Database.connect();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+                    ps.setString(1, name);
+                    ps.executeUpdate();
+                    nameTextField.setText("");
+                    loadCategoryData(tableModel); 
+                    JOptionPane.showMessageDialog(frame, "Category added successfully!");
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            });
+        deleteButton.addActionListener(i -> {
+           int viewRow = categoryTable.getSelectedRow();
+            if (viewRow == -1) {
+                JOptionPane.showMessageDialog(frame, "Select a category first");
+                return;
+            }
+            int modelRow = categoryTable.convertRowIndexToModel(viewRow);
+            int categoryId = Integer.parseInt(
+            tableModel.getValueAt(modelRow, 0).toString()
+            );
+            System.out.println("UI selected CategoryID = " + categoryId);
+            String categoryName = (String) tableModel.getValueAt(modelRow, 1);
             int confirm = JOptionPane.showConfirmDialog(
                     frame,
                     "Are you sure you want to delete the category: " + categoryName + "?",
@@ -1274,23 +1197,30 @@ try (Connection conn = Database.connect();
                     JOptionPane.YES_NO_OPTION
             );
             if (confirm == JOptionPane.YES_OPTION) {
-                boolean success = deleteCategory(categoryId);
-                if (success) {
-                    tableModel.removeRow(selectedRow);
-                    JOptionPane.showMessageDialog(frame, categoryName + " deleted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
-                } else {
-                    JOptionPane.showMessageDialog(frame, "Failed to delete category in database.", "Error", JOptionPane.ERROR_MESSAGE);
-                }
+                if (deleteCategory(categoryId)) {
+                loadCategoryData(tableModel);
+                JOptionPane.showMessageDialog(frame, "Deleted successfully");
+            }else {
+                JOptionPane.showMessageDialog(frame, "Delete failed");
             }
+        }
         });
         applyGlobalSettings();
         frame.revalidate();
         frame.repaint();
     }
-    private boolean deleteCategory(String id) {
-        System.out.println("Deleting category with ID: " + id);
-        return true;
+   private boolean deleteCategory(int CategoryId) {
+        String sql = "DELETE FROM Categories WHERE CategoryID = ?";
+        try (Connection con = Database.connect();
+            PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, CategoryId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }   
     }
+
     private void loadCategoryData(DefaultTableModel model) {
         model.setRowCount(0);
         List<Object[]> categories = fetchCategories();
@@ -1298,34 +1228,67 @@ try (Connection conn = Database.connect();
             model.addRow(categoryRow);
         }
     }
-    public List<Object[]> fetchCategories() {
+   public List<Object[]> fetchCategories() {
         List<Object[]> data = new ArrayList<>();
-        data.add(new Object[]{"Fiction", "C001"});
-        data.add(new Object[]{"Science", "C002"});
-        data.add(new Object[]{"History", "C003"});
+        String sql = "SELECT categoryID, Name FROM Categories";
+        try (Connection con = Database.connect();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    data.add(new Object[]{
+                    rs.getInt("categoryID"),
+                    rs.getString("Name")
+                });
+            }
+        }catch (SQLException e) {
+            e.printStackTrace();
+        }
         return data;
     }
+
+public boolean addCategory(String name, String id) {
+    String sql = "INSERT INTO Categories (categoryID, Name) VALUES (?, ?)";
+    try (Connection con = Database.connect();
+         PreparedStatement ps = con.prepareStatement(sql)) {
+
+        ps.setString(1, id);
+        ps.setString(2, name);
+        ps.executeUpdate();
+        return true;
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return false;
+    }
+}
+
+/*btnAdd.addActionListener(e -> {
+    String name = txtCategoryName.getText();
+    String id = txtCategoryId.getText();
+
+    if (dao.addCategory(name, id)) {
+        JOptionPane.showMessageDialog(this, "Category added!");
+        loadCategories(); // refresh table
+    }
+});*/
+
     /** Saves a new category to the 'database' and returns the new ID. */
-    private String saveCategory(String name) {
+   /*  private String saveCategory(String name) {
         // Replace with actual database INSERT and ID retrieval.
         System.out.println("Saving new category: " + name);
         return "C" + new Random().nextInt(900) + 100; // Simulated 3-digit ID
-    }
+    }*/
     private void telegramapi(String username) {
         frame.getContentPane().removeAll();
         frame.setLayout(new BorderLayout(10, 10));
-        // --- 1. Title ---
         JLabel title = new JLabel("Telegram api", SwingConstants.CENTER);
         title.setFont(new Font("SansSerif", Font.BOLD, 28));
         frame.add(title, BorderLayout.NORTH);
-        // --- 2. Table Model and View ---
         String[] columnNames = {"api", "id"};
         DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
         JTable categoryTable = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(categoryTable);
-        // Load initial data
         loadapi(tableModel);
-        // --- 3. Input Form Panel (WEST) ---
         JPanel formPanel = new JPanel(new GridLayout(4, 1, 10, 10));
         formPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         JTextField nameTextField = new JTextField(20);
@@ -1335,26 +1298,19 @@ try (Connection conn = Database.connect();
         formPanel.add(nameTextField);
         formPanel.add(addButton);
         formPanel.add(deleteButton);
-        // --- 4. Center Layout ---
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, formPanel, scrollPane);
         splitPane.setDividerLocation(250);
         splitPane.setResizeWeight(0.0);
         frame.add(splitPane, BorderLayout.CENTER);
-        // --- 5. Back Button (SOUTH) ---
         JButton back = new JButton("Back to Management");
         back.addActionListener(e -> librarymanagmentSystem(username, 1));
         frame.add(back, BorderLayout.SOUTH);
-        // --- 6. Action Listen for Dynamic Update ---
         addButton.addActionListener(e -> {
             String newapi = nameTextField.getText().trim();
             if (!newapi.isEmpty()) {
-                // 1. Save and get the ID (Simulated)
                 String newId = saveapi(newapi);
-                // 2. Create the row data as an Object arr
                 Object[] rowData = {newapi, newId};
-                // 3. Add the new row to the table model (automatic UI update)
                 tableModel.addRow(rowData);
-                // 4. Clear input
                 nameTextField.setText("");
             } else {
                 JOptionPane.showMessageDialog(frame, "api box can't be empty.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -1371,16 +1327,15 @@ try (Connection conn = Database.connect();
             model.addRow(apiRow);
         }
     }
-    /** Fetches simulated categories from a 'database' using ArrList and Object[]. */
+   
     private List<Object[]> fetchapi() {
         List<Object[]> data = new ArrayList<>();
         return data;
     }
-    /** Saves a new category to the 'database' and returns the new ID. */
+    
     private String saveapi(String name) {
-        // Replace with actual database INSERT and ID retrieval.
         System.out.println("Saving new api: " + name);
-        return "T" + new Random().nextInt(900) + 100; // Simulated 3-digit ID
+        return "T" + new Random().nextInt(900) + 100; 
     }
     private void ui(String username) {
     frame.getContentPane().removeAll();
@@ -1392,23 +1347,19 @@ try (Connection conn = Database.connect();
     GridBagConstraints gbc = new GridBagConstraints();
     gbc.insets = new Insets(6, 5, 5, 5);
     gbc.fill = GridBagConstraints.HORIZONTAL;
-    // Theme selector
     gbc.gridx = 0; gbc.gridy = 0;
     mainPanel.add(new JLabel("Theme:"), gbc);
     gbc.gridy++;
     JComboBox<String> themeBox = new JComboBox<>(new String[]{"Light", "Dark"});
     mainPanel.add(themeBox, gbc);
-    // Font size
     gbc.gridy++;
     mainPanel.add(new JLabel("Font Size:"), gbc);
     gbc.gridy++;
     JSpinner fontSpinner = new JSpinner(new SpinnerNumberModel(14, 8, 32, 1));
     mainPanel.add(fontSpinner, gbc);
-    // Full screen checkbox
     gbc.gridy++;
     JCheckBox fullscreenCheck = new JCheckBox("Enable Full Screen Mode");
     mainPanel.add(fullscreenCheck, gbc);
-    // Buttons
     gbc.gridy++;
     JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
     JButton applyBtn = new JButton("Apply");
@@ -1417,11 +1368,9 @@ try (Connection conn = Database.connect();
     buttonPanel.add(resetBtn);
     mainPanel.add(buttonPanel, gbc);
     frame.add(mainPanel, BorderLayout.CENTER);
-    // Load current global values
     themeBox.setSelectedItem(currentTheme);
     fontSpinner.setValue(currentFontSize);
     fullscreenCheck.setSelected(currentFullScreen);
-    // === Apply Button ===
     applyBtn.addActionListener(e -> {
         currentTheme = (String) themeBox.getSelectedItem();
         currentFontSize = (int) fontSpinner.getValue();
@@ -1434,7 +1383,7 @@ try (Connection conn = Database.connect();
                         "\nFull Screen: " + (currentFullScreen ? "Enabled" : "Disabled"),
                 "Global Settings Applied", JOptionPane.INFORMATION_MESSAGE);
     });
-    // === Reset Button ===
+ 
     resetBtn.addActionListener(e -> {
         currentTheme = "Light";
         currentFontSize = 14;
@@ -1491,7 +1440,7 @@ private void applyFont(Container container, int fontSize) {
     container.revalidate();
     container.repaint();
 }
-// Toggle fullscreen globally
+
 private void toggleFullScreen(boolean enable) {
     frame.dispose();
     frame.setUndecorated(enable);
